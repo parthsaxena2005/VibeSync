@@ -9,7 +9,7 @@ The Web app is already deployed and available to try at:
 
 ##  Features
 
-- **Content-Based Recommendations:** Uses a rich set of audio features from the Spotify dataset to find sonically similar songs. The attributes used include:
+- **Content-Based Recommendations:** Uses a rich set of audio features from the Spotify dataset to find similar songs. The attributes used include:
     - **Audio Features:** `danceability`, `energy`, `loudness`, `speechiness`, `acousticness`, `instrumentalness`, `liveness`, `valence`, `tempo`.
     - **Structural Features:** `key`, `mode`, `duration_ms`, `time_signature`.
     - **Metadata:** `popularity`, `explicit`.
@@ -20,13 +20,13 @@ The Web app is already deployed and available to try at:
 
 - **Direct Spotify Integration:** Each recommended song includes a "Play on Spotify" button that opens the track directly in the Spotify web player.
 
-- **Adjustable Recommendations:** A slider allows the user to choose how many recommendations they want to see (from 5 to 25), allowing user to find a better match if required.
+- **Adjustable Recommendations:** A slider allows the user to choose how many recommendations they want to see (from 5 to 50), allowing user to find a better match if required.
 
 ---
 
 ##  How It Works
 
-The recommendation engine is built on the principle of **content-based filtering**. The "vibe" or "DNA" of each song is represented by a numerical vector.
+The recommendation engine is built on the principle of **content-based filtering**. The "vibe" of each song is represented by a numerical vector.
 
 1.  **Data Preprocessing:** The initial dataset is cleaned by handling missing values and removing duplicate tracks.
 2.  **Feature Engineering:**
@@ -51,7 +51,7 @@ The recommendation engine is built on the principle of **content-based filtering
 
 ---
 
-## 🚀 Setup and Installation
+##  Setup and Installation
 
 To run this project locally, follow these steps:
 
