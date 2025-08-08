@@ -73,7 +73,7 @@ def recommend_songs(song_id, song_indices, df_final, df_final_backup, num_recomm
 
     sim_scores_list = sorted(sim_scores_list ,key=lambda x:x[1] ,reverse=True)
 
-    top_k_songs = [i[0] for i in sim_scores_list[1:1001]]
+    top_k_songs = [i[0] for i in sim_scores_list[1:201]]
 
     top_k_df = df_final_backup.iloc[top_k_songs]
 
@@ -86,33 +86,69 @@ def recommend_songs(song_id, song_indices, df_final, df_final_backup, num_recomm
 
 st.title("VibeSync🎵")
 st.write("click and type your song to get recommendations based on the vibe of the song")
+# with st.spinner("Loading Dataset, please wait a min"):
+#     df_final, df_final_backup, song_indices = load_data()
+#     song_names_to_id = pd.Series(df_final_backup.id.values, index=df_final_backup.name +" - " + df_final_backup.artists.str.replace("[\[\]']", "", regex=True)).to_dict()
+#     song_names = song_names_to_id.keys()
+
+st.success("The recommendations are currently optimized only for english songs and support songs released till 2020.")
+
+# song_name_selected =  st.selectbox(label="type your song here to search (Case Sensitive)", options= song_names)
+
+if 'search_results' not in st.session_state:
+    st.session_state['search_results']=None
+
 with st.spinner("Loading Dataset, please wait a min"):
     df_final, df_final_backup, song_indices = load_data()
-    song_names_to_id = pd.Series(df_final_backup.id.values, index=df_final_backup.name +" - " + df_final_backup.artists.str.replace("[\[\]']", "", regex=True)).to_dict()
-    song_names = song_names_to_id.keys()
-
-st.success("The recommendations are currently optimized only for english songs.")
-
-song_name_selected =  st.selectbox(label="type your song here to search (Case Sensitive)", options= song_names)
-
-num_of_songs = st.slider("Number of Recommendations", 5,50,15)
-
-if st.button("Recommend"):
-    if song_name_selected:
-        with st.spinner(f"Analysing Simmilar Songs to '{song_name_selected}' ..."):
-            ans = recommend_songs(song_names_to_id[song_name_selected], song_indices, df_final, df_final_backup, num_recommendation=num_of_songs)
-
-
-            st.subheader("Here are your recommendations:")
-            # st.dataframe(ans)
-            for index, row in ans.iterrows():
-                col1, col2 = st.columns([0.8, 0.2])
-                with col1:
-                    st.write(f"**{row['name']}** by {row['artists'].strip('[]')}")
-                with col2:
-                    spotify_url = f"https://open.spotify.com/track/{row['id']}"
-                    st.link_button("Play on Spotify", spotify_url)
+    # song_display_list = pd.Series(df_final_backup.id.values, index=df_final_backup.name +" - " + df_final_backup.artists.str.replace("[\[\]']", "", regex=True)).to_dict()
+    # song_names = song_names_to_id.keys()
 
 
 
+st.subheader("Search for a song")
+search_query = st.text_input("Enter a song title:", key="search_input")
+
+if st.button("Search"):
+    if search_query:
+
+        results = df_final_backup[df_final_backup['name'].str.contains(search_query, case=False, na=False)]
+        st.session_state['search_results']  = results
+    else:
+        st.session_state['search_results'] = None
+
+
+if st.session_state['search_results'] is not None and not st.session_state['search_results'].empty:
+    st.subheader("Select the exact match")
+    search_results_df = st.session_state['search_results']
+    song_names_to_display = search_results_df['name'] + ' - ' + search_results_df['artists'].str.replace(r"[\[\]']", "",regex = True).tolist()
+
+    song_name_selected = st.selectbox("Choose a song from the results", options = song_names_to_display)
+
+    num_of_songs = st.slider("Number of Recommendations", 5,50,15)
+
+    if st.button("Recommend"):
+        if song_name_selected:
+            with st.spinner(f"Analysing Simmilar Songs to '{song_name_selected}' ..."):
+                song_to_recommend  = df_final_backup[
+                    (df_final_backup['name'] + ' - ' +df_final_backup['artists'].str.replace(r"[\[\]']", "", regex=True)) == song_name_selected
+                                                     ]
+                
+                song_id = song_to_recommend['id'].iloc[0]
+
+                ans = recommend_songs(song_id, song_indices, df_final, df_final_backup, num_recommendation=num_of_songs)
+
+
+                st.subheader("Here are your recommendations:")
+                # st.dataframe(ans)
+                for index, row in ans.iterrows():
+                    col1, col2 = st.columns([0.8, 0.2])
+                    with col1:
+                        st.write(f"**{row['name']}** by {row['artists'].strip('[]')}")
+                    with col2:
+                        spotify_url = f"https://open.spotify.com/track/{row['id']}"
+                        st.link_button("Play on Spotify", spotify_url)
+
+
+elif st.session_state['search_results'] is not None:
+    st.warning("No song matches your query, please try again.")
 # st.write(song_name)
