@@ -73,7 +73,7 @@ def recommend_songs(song_id, song_indices, df_final, df_final_backup, num_recomm
 
     sim_scores_list = sorted(sim_scores_list ,key=lambda x:x[1] ,reverse=True)
 
-    top_k_songs = [i[0] for i in sim_scores_list[1:500]]
+    top_k_songs = [i[0] for i in sim_scores_list[1:1001]]
 
     top_k_df = df_final_backup.iloc[top_k_songs]
 
